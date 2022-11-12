@@ -1,2 +1,1 @@
-# gha-elixir-workflow
-GitHub Action Elixir Workflow
+# GitHub Action Elixir Workflow

@@ -8,9 +8,6 @@ on:
         default: true
         required: false
         type: boolean
-    secrets:
-      github-token:
-        required: true
 
 jobs:
   ci:
@@ -71,7 +68,7 @@ jobs:
 
       - name: Test
         env:
-          GITHUB_TOKEN: ${{ secrets.github-token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mix coveralls.github
 
       - name: Docs Build
@@ -82,5 +79,5 @@ jobs:
         if: inputs.build-docs && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github-token: ${{ secrets.github-token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: doc

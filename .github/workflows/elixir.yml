@@ -1,6 +1,9 @@
 on:
   workflow_call:
     inputs:
+      elixir-version:
+        required: true
+        type: string
       build-docs:
         default: true
         required: false
@@ -14,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: elixir:1.14.1
+      image: elixir:${{ inputs.elixir-version }}
 
     steps:
       - uses: actions/checkout@v3

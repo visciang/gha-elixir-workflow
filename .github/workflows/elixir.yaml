@@ -1,7 +1,7 @@
 on:
   workflow_call:
     inputs:
-      build-docs:
+      build_docs:
         default: true
         required: false
         type: boolean
@@ -72,11 +72,11 @@ jobs:
         run: mix coveralls.github
 
       - name: Docs Build
-        if: inputs.build-docs && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main)'
+        if: inputs.build_docs && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main)'
         run: mix docs --formatter=html
 
       - name: Docs Publish
-        if: inputs.build-docs && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main)'
+        if: inputs.build_docs && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main)'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.github_token }}

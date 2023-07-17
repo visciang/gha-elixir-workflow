@@ -13,9 +13,6 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-
     container:
       image: elixir:${{ inputs.elixir-version }}
 

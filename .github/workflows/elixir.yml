@@ -37,6 +37,7 @@ jobs:
           mix deps.get
           mix deps.unlock --check-unused
           mix deps.compile
+          MIX_ENV=test mix deps.compile
           mix dialyzer --plt
 
       - name: Compile

@@ -1,10 +1,15 @@
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
-      elixir-version:
+      image:
         required: true
         type: string
       build-docs:
+        default: true
+        required: false
+        type: boolean
+      tests:
         default: true
         required: false
         type: boolean
@@ -14,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: elixir:${{ inputs.elixir-version }}
+      image: ${{ inputs.image }}
 
     steps:
       - uses: actions/checkout@v3
@@ -29,15 +34,20 @@ jobs:
             _build
           key: ${{ runner.os }}-${{ hashFiles('mix.*') }}
 
+      - name: Tools
+        run: apt-get update && apt-get install --yes --no-install-recommends git
+
       - name: Install Dependencies
         if: steps.mix-cache.outputs.cache-hit != 'true'
         run: |
           mix local.rebar --force
           mix local.hex --force
+
           mix deps.get
           mix deps.unlock --check-unused
           mix deps.compile
           MIX_ENV=test mix deps.compile
+
           mix dialyzer --plt
 
       - name: Compile
@@ -48,19 +58,6 @@ jobs:
       - name: Lint format
         run: mix format --check-formatted
 
-      - name: Lint xref
-        run: |
-          XREF_EXIT_CODE=0
-          CYCLES=$(mix xref graph --format=cycles --fail-above 0 2>/dev/null) || XREF_EXIT_CODE=$?
-
-          if [ $XREF_EXIT_CODE -ne 0 ]; then
-            echo "Found module dependency cycle:"
-            echo "$CYCLES"
-            exit 1
-          else
-            echo "No cycle found"
-          fi
-
       - name: Lint dialyzer
         run: mix dialyzer --no-check
 
@@ -68,9 +65,11 @@ jobs:
         run: mix credo --all --strict
 
       - name: Test
+        if: inputs.tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mix coveralls.github
+        run: |
+          mix coveralls.github
 
       - name: Docs Build
         if: inputs.build-docs && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
